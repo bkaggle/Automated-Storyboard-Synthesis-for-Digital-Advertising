@@ -7,3 +7,8 @@ This repository automates the creation of advertisement storyboards using machin
 * Utilizes Stable Diffusion models for image generation from textual descriptions.
 * Parses JSON data containing ad concepts, descriptions, and asset suggestions.
 * Facilitates the creation of dynamic and engaging digital campaigns with intuitive narrative flows.
+
+clone the repo:
+```
+https://github.com/bkaggle/Automated-Storyboard-Synthesis-for-Digital-Advertising
+```
