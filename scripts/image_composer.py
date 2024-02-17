@@ -49,22 +49,24 @@ class ImageComposer:
         self.generated_frames = []
 
         for frame in self.frames:
-            # Separate Background
-            placement_items = []
-            for index, item in enumerate(frame):
-                if item[0] == "Background" or item[0] == "Call to Action":
-                    background_index = index
-                    continue
-                placement_items.append(item)
-            
-            background = frame[background_index]
+            background_element = None
+            other_elements = []
 
-            possibilties = ImageComposer.compute_positions([item[0] for item in placement_items])
-            identified_locations = ImageComposer.select_diverse_positions(possibilties)
-            adjusted_positions = self.calculate_adjusted_element_positions(identified_locations)
-            placement_values = [(x[2], *list(y.values())) for x, y in zip(placement_items, adjusted_positions)]
-            # Construct Frame
-            self.generated_frames.append(self.create_combined_image(background[2], placement_values))
+            # Separate Background and other elements
+            for index, item in enumerate(frame):
+                if item[0] == "Background":
+                    background_element = item
+                else:
+                    other_elements.append(item)
+
+            # Process other elements even if background element is missing
+            if background_element:
+                # Construct Frame
+                self.generated_frames.append(self.create_combined_image(background_element[2], other_elements))
+            else:
+                # Background element is missing, proceed with other elements
+                self.generated_frames.append(self.create_combined_image(None, other_elements))
+
 
     @staticmethod
     def compute_positions(elements: List[categories]) -> List[AlignmentPositions]:
