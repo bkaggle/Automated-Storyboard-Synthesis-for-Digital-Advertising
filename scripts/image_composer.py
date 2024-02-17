@@ -41,29 +41,30 @@ class ImageComposer:
         self.compose_frames()
         return self.generated_frames
 
+    def generate_frames(self):
+        self.compose_frames()
+        return self.generated_frames
+
     def compose_frames(self) -> None:
-        
         self.generated_frames = []
 
         for frame in self.frames:
-            background_element = None
-            other_elements = []
-
-            # Separate Background and other elements
+            # Separate Background
+            placement_items = []
             for index, item in enumerate(frame):
-                if item[0] == "Background":
-                    background_element = item
-                else:
-                    other_elements.append(item)
+                if item[0] == "Background" or item[0] == "Call to Action":
+                    background_index = index
+                    continue
+                placement_items.append(item)
+            
+            background = frame[background_index]
 
-            if background_element is None:
-                raise ValueError("No background element found in the frame.")
-
-            # Process other elements as needed
-
+            possibilties = ImageComposer.compute_positions([item[0] for item in placement_items])
+            identified_locations = ImageComposer.select_diverse_positions(possibilties)
+            adjusted_positions = self.calculate_adjusted_element_positions(identified_locations)
+            placement_values = [(x[2], *list(y.values())) for x, y in zip(placement_items, adjusted_positions)]
             # Construct Frame
-            self.generated_frames.append(self.create_combined_image(background_element[2], other_elements))
-
+            self.generated_frames.append(self.create_combined_image(background[2], placement_values))
 
     @staticmethod
     def compute_positions(elements: List[categories]) -> List[AlignmentPositions]:
@@ -226,14 +227,11 @@ class ImageComposer:
     
 
 if __name__ == "__main__":
-    ic = ImageComposer(320, 500, [
-        [('Background', 'url_path', 'local_path'), 
-         ('Logo', 'url_path', 'local_path'), 
-         ('Call-To-Action (CTA) Button', 'url_path', 'local_path'),
-         ('Icon', 'url_path', 'local_path'),
-         ('Product Image', 'url_path', 'local_path'),
-         ('Text Elements', 'url_path', 'local_path')]
-    ])
+    ic = ImageComposer(320, 500, [[('Logo', 'url_path', 'local_path'), 
+                                   ('Call-To-Action (CTA) Button', 'url_path', 'local_path'),
+                                   ('Icon', 'url_path', 'local_path'),
+                                   ('Product Image', 'url_path', 'local_path'),
+                                   ('Text Elements', 'url_path', 'local_path')]])
     possibilties = ImageComposer.compute_positions(["Logo", "Call-To-Action (CTA) Button", "Icon", "Product Image", "Text Elements"])
     pprint(possibilties)
     print("======================================================")
@@ -241,3 +239,4 @@ if __name__ == "__main__":
     pprint(diverse)
 
     print(ic.calculate_adjusted_element_positions(diverse))
+    
